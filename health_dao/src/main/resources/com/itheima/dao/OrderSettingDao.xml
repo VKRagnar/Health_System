@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.OrderSettingDao">
+    <!--根据日期查询预约设置-->
+    <select id="findByOrderDate" parameterType="Date" resultType="OrderSetting">
+        SELECT * FROM t_ordersetting WHERE orderDate=#{orderDate}
+    </select>
+
+    <!--插入OrderSeting的记录-->
+    <insert id="insertOrderSetting" parameterType="OrderSetting">
+        INSERT INTO t_ordersetting (orderDate,number,reservations) VALUES (#{orderDate},#{number},#{reservations})
+    </insert>
+
+    <!--更新OrderSeting的记录-->
+    <update id="updateOrderSetting" parameterType="OrderSetting">
+        UPDATE t_ordersetting SET number=#{number} WHERE orderDate=#{orderDate}
+    </update>
+
+    <!--获取展示的预约设置信息-->
+    <select id="findByCurrentDate" parameterType="String" resultType="OrderSetting">
+        SELECT * FROM t_ordersetting WHERE orderDate LIKE #{currentDate}
+    </select>
+
+    <!--已预约人数+1 -->
+    <update id="updateReservations" parameterType="java.util.Date">
+        UPDATE t_ordersetting SET reservations=reservations+1 WHERE orderDate=#{orderDate}
+    </update>
+</mapper>

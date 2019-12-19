@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://code.alibabatech.com/schema/dubbo
+                        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--引入spring-redis.xml-->
+    <import resource="spring-redis.xml"/>
+
+    <!--配置应用名称 name="dubbodemo_provider-->
+    <dubbo:application name="health_service"/>
+    <!--配置注册中心地址 zookeeper所在服务器的ip地址端口为2181-->
+    <dubbo:registry address="zookeeper://119.23.148.153:2181"/>
+    <!--配置注册 协议和port  端口默认是20880-->
+    <dubbo:protocol name="dubbo" port="20880"/>
+    <!--配置包扫描 加入@Service注解的类会被发布为服务-->
+    <dubbo:annotation package="com.itheima.service"/>
+    
+    <!--事务管理器-->
+    <import resource="classpath:applicationContext-dao.xml"/>
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--开启事务控制的注解支持 , 并cglib生成代理对象-->
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"></tx:annotation-driven>
+
+
+</beans>

@@ -1,0 +1,13 @@
+springsecurity_demo1
+springsecurity_demo2
+springsecurity_demo3
+.idea
+out
+target
+/health_dao/src/main/resources/jdbcConfig.properties
+/health_jobs/src/main/resources/jedisConfig.properties
+/health_service/src/main/resources/jedisConfig.properties
+/health_web/src/main/resources/jedisConfig.properties
+/healthmobile_web/src/main/resources/jedisConfig.properties
+/health_common/src/main/java/com/itheima/util/SMSUtils.java
+/health_common/src/main/java/com/itheima/util/QiniuUtils.java

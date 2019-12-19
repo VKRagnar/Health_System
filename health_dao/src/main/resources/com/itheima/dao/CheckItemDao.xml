@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.CheckItemDao">
+    <!--增加体检项-->
+    <insert id="insert" parameterType="CheckItem">
+        INSERT INTO t_checkitem VALUES (null,#{code},#{name},#{sex},#{age},#{price},#{type},#{remark},#{attention})
+    </insert>
+
+    <!--查询当前页体检项-->
+    <!--<select id="selectByCondition " parameterType="String" resultType="CheckItem">-->
+<!--    <select id="selectByCondition" parameterType="String" resultType="CheckItem">
+        SELECT * FROM t_checkitem
+            <if test="value!=null and value.length>0">
+&#45;&#45;                 WHERE name=#{name}
+                WHERE code=#{value} OR name=#{value}
+            </if>
+    </select>-->
+    <select id="selectByCondition" parameterType="string" resultType="com.itheima.pojo.CheckItem">
+        select * from t_checkitem
+        <if test="value != null and value.length > 0">
+            where code = #{value} or name = #{value}
+        </if>
+    </select>
+
+    <!--根据ID查找目标体检项与体检组的关联数-->
+    <select id="findCountByCheckItemId" parameterType="int" resultType="long">
+        SELECT count(*) FROM t_checkgroup_checkitem WHERE checkitem_id=#{id}
+    </select>
+
+    <!--删除体检项-->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM t_checkitem WHERE id=#{id}
+    </delete>
+
+    <!--根据ID查找体检项-->
+    <select id="selectById" parameterType="int" resultType="CheckItem">
+        SELECT * FROM t_checkitem WHERE id=#{id}
+    </select>
+
+    <!--编辑体检项-->
+    <update id="updateCheckItem" parameterType="CheckItem">
+        UPDATE t_checkitem
+        <set>
+            <if test="code !=null">
+                code=#{code},
+            </if>
+            <if test="name !=null">
+                name=#{name},
+            </if>
+            <if test="sex !=null">
+                sex=#{sex},
+            </if>
+            <if test="age !=null">
+                age=#{age},
+            </if>
+            <if test="price !=null">
+                price=#{price},
+            </if>
+            <if test="type !=null">
+                type=#{type},
+            </if>
+            <if test="remark !=null">
+                remark=#{remark},
+            </if>
+            <if test="attention !=null">
+                attention=#{attention},
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <!--查询所有体检项-->
+    <select id="selectAll" resultType="CheckItem">
+        SELECT * FROM t_checkitem
+    </select>
+
+
+
+    <!--根据检查组id查询检查项信息:(查询套餐详情：方案2)-->
+    <select id="findCheckItemById" parameterType="int" resultType="CheckItem">
+        select * from t_checkitem WHERE id in (select checkitem_id from t_checkgroup_checkitem where checkgroup_id=#{id})
+    </select>
+</mapper>

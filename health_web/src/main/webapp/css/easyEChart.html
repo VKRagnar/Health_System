@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!--引入 ECharts 文件-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../js/echarts.js"></script>
+
+
+</head>
+<body>
+    <!--为 ECharts 准备一个具备大小（宽高）的 DOM-->
+    <div id="main" style="width:600px;height:400px;"></div>
+</body>
+<script type="text/javascript">
+    //基于准备好的dom，初始化echarts 实例
+    var myChart=echarts.init(document.getElementById("main"));
+
+/*
+    //指定图表的醘项和数据
+    var option={
+        title:{
+            text:'ECharts 入门示例'
+        },
+        tooltip:{},
+        legend:{
+            data:['销量']
+        },
+        xAxis:{
+            data:["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+        },
+        yAxis:{},
+        series:[{
+            name:'销量',
+            type:'bar',
+            data:[5,20,36,10,10,20]
+        }]
+    };
+*/
+
+    $.getJSON(ROOT_PATH + 'data-gl/asset/data/flights.json', function(data) {
+
+        function getAirportCoord(idx) {
+            return [data.airports[idx][3], data.airports[idx][4]];
+        }
+        var routes = data.routes.map(function(airline) {
+            return [
+                getAirportCoord(airline[1]),
+                getAirportCoord(airline[2])
+            ];
+        });
+
+        myChart.setOption({
+            backgroundColor: '#000',
+            globe: {
+                baseTexture: ROOT_PATH + 'data-gl/asset/world.topo.bathy.200401.jpg',
+                heightTexture: ROOT_PATH + 'data-gl/asset/bathymetry_bw_composite_4k.jpg',
+
+                shading: 'lambert',
+
+                light: {
+                    ambient: {
+                        intensity: 0.4
+                    },
+                    main: {
+                        intensity: 0.4
+                    }
+                },
+
+                viewControl: {
+                    autoRotate: false
+                }
+            },
+            series: {
+
+                type: 'lines3D',
+
+                coordinateSystem: 'globe',
+
+                blendMode: 'lighter',
+
+                lineStyle: {
+                    width: 1,
+                    color: 'rgb(50, 50, 150)',
+                    opacity: 0.1
+                },
+
+                data: routes
+            }
+        });
+    });
+</script>
+</html>

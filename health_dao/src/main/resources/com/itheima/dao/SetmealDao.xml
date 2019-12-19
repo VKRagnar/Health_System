@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.SetmealDao">
+    <!--增加套餐-->
+    <insert id="add" parameterType="Setmeal" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_setmeal (name,code,helpCode,sex,age,price,remark,attention,img) VALUES
+        (#{name},#{code},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})
+    </insert>
+
+    <!--编辑套餐-->
+    <update id="update" parameterType="Setmeal">
+        UPDATE t_setmeal
+        <set>
+            <if test="name !=null">name=#{name},</if>
+            <if test="code !=null">code=#{code},</if>
+            <if test="helpCode !=null">helpCode=#{helpCode},</if>
+            <if test="sex !=null">sex=#{sex},</if>
+            <if test="age !=null">age=#{age},</if>
+            <if test="price !=null">price=#{price},</if>
+            <if test="remark !=null">remark=#{remark},</if>
+            <if test="attention !=null">attention=#{attention},</if>
+            <if test="img !=null">img=#{img},</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <!--删除套餐-->
+    <delete id="delete" parameterType="int">
+        DELETE FROM t_setmeal WHERE id=#{id}
+    </delete>
+
+    <!--根据删除套餐与检查组的关联信息-->
+    <delete id="deleteSetmeltCheckGroup" parameterType="int">
+        DELETE FROM t_setmeal_checkgroup WHERE setmeal_id=#{id}
+    </delete>
+
+    <!--保存套餐与检查组的关联信息-->
+    <insert id="settSetmealAndCheckgroup" parameterType="Map">
+        INSERT INTO t_setmeal_checkgroup (setmeal_id,checkgroup_id) VALUES (#{setmeal_id},#{checkgroup_id})
+    </insert>
+
+    <!--分页查询-->
+    <select id="selectByCondition" parameterType="string" resultType="Setmeal">
+        SELECT * FROM t_setmeal
+        <if test="value != null and value.length > 0">
+            WHERE code=#{code} or helpCode=#{helpCode} or name=#{name}
+        </if>
+    </select>
+
+    <!--根据ID查询-->
+    <select id="findById" parameterType="int" resultType="Setmeal">
+        SELECT * FROM t_setmeal WHERE id=#{id}
+    </select>
+
+
+    <!--查询套餐关联的检查组-->
+    <select id="findCheckgroupIds" parameterType="int" resultType="int">
+        SELECT checkgroup_id FROM t_setmeal_checkgroup WHERE setmeal_id=#{setmeal_id}
+    </select>
+
+    <!--查询套餐列表-->
+    <select id="getSetmeal" resultType="Setmeal">
+        SELECT * FROM t_setmeal
+    </select>
+
+    <!--查询套餐详情：方案1-->
+    <select id="a" parameterType="int" resultMap="atoSetmeal">
+        SELECT s.*,c.id c_id,c.code c_code,c.name c_name,c.helpCode c_helpCode,c.sex c_sex,c.remark c_remark,c.attention c_attention,
+        c1.id c1_id,c1.code c1_code,c1.name c1_name,c1.sex c1_sex,c1.age c1_age,c1.price c1_price,c1.type c1_type,c1.remark c1_remark,c1.attention c1_attention FROM t_setmeal s
+        inner join t_setmeal_checkgroup sc on s.id=sc.setmeal_id and s.id=#{id}
+        inner join t_checkgroup c on sc.checkgroup_id=c.id
+        inner join t_checkgroup_checkitem cc on c.id=cc.checkgroup_id
+        inner join t_checkitem c1 on cc.checkitem_id=c1.id
+    </select>
+    <resultMap id="atoSetmeal" type="com.itheima.pojo.Setmeal">
+        <id property="id" column="id"></id>
+        <result column="name" property="name"></result>
+        <result column="code" property="code"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="price" property="price"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <result column="img" property="img"></result>
+        <collection property="checkGroups" ofType="CheckGroup">
+            <result property="id" column="c_id"></result>
+            <result property="code" column="c_code"></result>
+            <result property="name" column="c_name"></result>
+            <result property="helpCode" column="c_helpCode"></result>
+            <result property="sex" column="c_sex"></result>
+            <result property="remark" column="c_remark"></result>
+            <result property="attention" column="c_attention"></result>
+            <collection property="checkItems" ofType="CheckItem">
+                <result column="c1_id" property="id"></result>
+                <result column="c1_code" property="code"></result>
+                <result column="c1_name" property="name"></result>
+                <result column="c1_sex" property="sex"></result>
+                <result column="c1_age" property="age"></result>
+                <result column="c1_price" property="price"></result>
+                <result column="c1_type" property="type"></result>
+                <result column="c1_remark" property="remark"></result>
+                <result column="c1_attention" property="attention"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--查询套餐详情：方案2-->
+    <select id="findSetmealById" resultMap="toSetmeal">
+        select * from t_setmeal where id=#{id}
+    </select>
+    <resultMap id="toSetmeal" type="Setmeal" extends="baseResultMap">
+        <collection property="checkGroups" javaType="ArrayList"
+                    ofType="CheckGroups" column="id"
+                    select="com.itheima.dao.CheckGroupDao.findCheckGroupById"/>
+    </resultMap>
+    <resultMap id="baseResultMap" type="Setmeal">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="price" property="price"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <result column="img" property="img"/>
+    </resultMap>
+
+    <!--查询套餐详情：方案3-->
+    <select id="findSetmeal_ById" resultMap="to_Setmeal">
+        select * from t_setmeal where id=#{id}
+    </select>
+    <resultMap id="to_Setmeal" type="Setmeal">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="price" property="price"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <result column="img" property="img"/>
+        <collection property="checkGroups" javaType="ArrayList"
+                    ofType="CheckGroup" column="id"
+                    select="com.itheima.dao.CheckGroupDao.findCheckGroup_ById"/>
+    </resultMap>
+
+
+    <!--查询各套餐总预约人次-->
+    <select id="findSetmealCount" resultType="Map">
+      select s.name,t.value from
+      t_setmeal s,(select count(setmeal_id) value,setmeal_id from t_order group by setmeal_id) t
+      where s.id=t.setmeal_id
+    </select>
+
+    <!--热门套餐-->
+    <select id="findHotSetmeal" resultType="Map">
+        select s.name,count(o.id) setmeal_count,
+        count(o.id)/(select count(id) from t_order) proportion,s.remark from t_order o,t_setmeal s
+        where s.id=o.setmeal_id group by o.setmeal_id order by setmeal_count desc limit 0,3
+    </select>
+</mapper>

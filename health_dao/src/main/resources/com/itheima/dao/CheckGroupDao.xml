@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.CheckGroupDao">
+    <!--增加体检组-->
+    <insert id="add" parameterType="CheckGroup" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_checkgroup VALUES (null,#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+    </insert>
+
+    <!--将体检组和体检项的ID,插入到关联表-->
+    <insert id="setCheckGroupAndCheckItem" parameterType="Map">
+        INSERT INTO t_checkgroup_checkitem VALUES (#{checkgroup_id},#{checkitem_id})
+    </insert>
+
+    <!--查询当前页数据-->
+    <select id="findPage" parameterType="String" resultType="CheckGroup">
+        SELECT * FROM t_checkgroup
+        <if test="value !=null and value.length>0">
+--             根据用户输入的查询条件
+            WHERE code=#{code} or name=#{name} or helpCode=#{helpCode}
+        </if>
+    </select>
+
+    <!--删除关联表里的记录-->
+    <select id="deleteCheckGroupAndCheckItem" parameterType="int">
+        DELETE FROM t_checkgroup_checkitem WHERE checkgroup_id=#{id}
+    </select>
+
+    <!--删除体检组-->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM t_checkgroup WHERE id=#{id}
+    </delete>
+
+    <!--根据ID查询检查组-->
+    <select id="findById" parameterType="int" resultType="CheckGroup">
+    <!--<select id="findById" parameterType="int" resultMap="toCheckGroup">-->
+        SELECT * FROM t_checkgroup WHERE id=#{id}
+    </select>
+<!--    <resultMap id="toCheckGroup" type="CheckGroup" extends="baseResultMap">
+        <collection property="checkItems" javaType="ArrayList"
+                    ofType="CheckItem" column="id"
+                    select="com.itheima.dao.CheckItemDao.selectById"/>
+    </resultMap>
+    <resultMap id="baseResultMap" type="CheckGroup">
+        <id column="id" property="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="helpCode" column="helpCode"/>
+        <result property="sex" column="sex"/>
+        <result property="remark" column="remark"/>
+        <result property="attention" column="attention"/>
+    </resultMap>-->
+
+    <!--根据检查组ID查询关联的检查项-->
+    <select id="findCheckitemIds" parameterType="int" resultType="int">
+        SELECT checkitem_id FROM t_checkgroup_checkitem WHERE checkgroup_id=#{id}
+    </select>
+
+    <!--修改检查组-->
+    <update id="edit" parameterType="CheckGroup">
+        UPDATE t_checkgroup
+        <set>
+            <if test="code !=null">
+                code=#{code},
+            </if>
+            <if test="name !=null">
+                name=#{name},
+            </if>
+            <if test="helpCode !=null">
+                helpCode=#{helpCode},
+            </if>
+            <if test="sex !=null">
+                sex=#{sex},
+            </if>
+            <if test="remark !=null">
+                remark=#{remark},
+            </if>
+            <if test="attention !=null">
+                attention=#{attention}
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <!--查询所有检查组-->
+    <select id="findAll" resultType="CheckGroup">
+        SELECT * FROM t_checkgroup
+    </select>
+
+    <!--查询套餐关联的检查组:(查询套餐详情：方案2)-->
+    <select id="findCheckGroupById" parameterType="int" resultMap="toCheckGroup">
+        select * from t_checkgroup where id in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id})
+    </select>
+    <resultMap id="toCheckGroup" type="CheckGroup" extends="baseResult">
+        <collection property="checkItems" javaType="ArrayList"
+                    ofType="CheckItems" column="id"
+                    select="com.itheima.dao.CheckItemDao.findCheckItemById"/>
+    </resultMap>
+    <resultMap id="baseResult" type="CheckGroup">
+        <id column="id" property="id"></id>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+    </resultMap>
+
+
+    <!--查询套餐关联的检查组:(查询套餐详情：方案3)-->
+    <select id="findCheckGroup_ById" parameterType="int" resultMap="to_CheckGroup">
+        select * from t_checkgroup where id in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id})
+    </select>
+    <resultMap id="to_CheckGroup" type="CheckGroup">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <collection property="checkItems" javaType="ArrayList"
+                    ofType="CheckItem" column="id"
+                    select="com.itheima.dao.CheckItemDao.findCheckItemById"/>
+    </resultMap>
+</mapper>
